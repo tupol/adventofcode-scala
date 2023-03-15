@@ -11,15 +11,15 @@ def part2(): Unit = {
 
   def result(input: Seq[String]) = input
     .sliding(3, 3)
-    .map(team => team.tail.foldLeft(team.head)((acc, elf) => acc.intersect(elf)))
+    .map(team => team.tail.foldLeft(team.head)((acc, elf) => acc.intersect(elf)).toSet.mkString(""))
     .mkString("")
     .toCharArray.map(c => priority(c))
     .sum
-
 
   val testResult = result(input("day03/input2_test.txt"))
   println(testResult == 70)
 
   val mainResult = result(input("day03/input2.txt"))
   println(mainResult)
+
 }
