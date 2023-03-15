@@ -5,6 +5,7 @@
 
 # User-specific stuff:
 .idea
+.bsp/
 
 ## File-based project format:
 *.iws
@@ -51,3 +52,4 @@ project/plugins/project/
 .history
 .cache
 .lib/
+.bsp/
