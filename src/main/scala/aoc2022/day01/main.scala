@@ -1,6 +1,6 @@
-package day01
+package aoc2022.day01
 
-import scala.io._
+import scala.io.*
 
 @main
 def main(): Unit = {
@@ -16,6 +16,6 @@ def main(): Unit = {
     if(rest.isEmpty) accu else accu :+ rest
   }
 
-  val input  = Source.fromResource("day01/input.txt").getLines()
+  val input  = Source.fromResource("aoc2022/day01/input.txt").getLines()
   println(parseInput(input).map(_.sum).sortBy(-_).take(3).sum)
 }

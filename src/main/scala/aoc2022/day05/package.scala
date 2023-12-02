@@ -1,3 +1,5 @@
+package aoc2022
+
 import scala.collection.mutable.Stack
 
 package object day05 {

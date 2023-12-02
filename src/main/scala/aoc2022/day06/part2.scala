@@ -1,4 +1,4 @@
-package day06
+package aoc2022.day06
 
 import scala.annotation.tailrec
 import scala.io.*

@@ -1,3 +1,5 @@
-Advent of Code 2022
+# Advent of Code
+
+## Scala Edition
 
 https://adventofcode.com

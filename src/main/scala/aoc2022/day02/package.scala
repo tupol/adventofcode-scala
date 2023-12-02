@@ -1,3 +1,5 @@
+package aoc2022
+
 package object day02 {
 
   enum Choice:

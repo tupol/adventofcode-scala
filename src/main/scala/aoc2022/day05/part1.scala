@@ -1,11 +1,11 @@
-package day05
+package aoc2022.day05
 
 import scala.collection.immutable.Seq
 import scala.io.*
 import scala.util.{Failure, Try}
 
 @main
-def part2(): Unit = {
+def part1(): Unit = {
 
   val testStorage = Storage[String](3)
   testStorage.fill(0, Seq("Z", "N"))
@@ -20,7 +20,7 @@ def part2(): Unit = {
     "move 1 from 1 to 2"
   ).map(MoveCommand(_))
 
-  commands.foreach{ testStorage.moveBulk }
+  commands.foreach{ testStorage.move }
 
   testStorage.show
 
@@ -52,7 +52,7 @@ def part2(): Unit = {
     .filter(_.startsWith("move"))
     .map(MoveCommand(_))
 
-  mainCommands.foreach(mainStorage.moveBulk)
+  mainCommands.foreach(mainStorage.move)
 
   mainStorage.show
 

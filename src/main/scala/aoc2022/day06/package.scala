@@ -1,3 +1,5 @@
+package aoc2022
+
 package object day06 {
   
   val test1 = "mjqjpqmgbljsphdztnvjfqwrcgsmlb".toCharArray.iterator

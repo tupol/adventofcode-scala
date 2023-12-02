@@ -1,6 +1,6 @@
-package day02
+package aoc2022.day02
 
-import scala.io._
+import scala.io.*
 
 @main
 def part1(): Unit = {
