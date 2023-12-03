@@ -2,10 +2,9 @@ package aoc2023.day03
 
 import aoc2023.day02.main.Game
 
-
 import scala.io.Source
 
-object main extends App {
+object main2 extends App {
 
   trait Text {
     val value: String
@@ -23,6 +22,9 @@ object main extends App {
   }
   case class Symbols(value: String, from: Int) extends Text {
     def append(value: String) = Symbols(s"${this.value}$value", this.from)
+  }
+  case class SymbolsWithId(id: Int, symbols: Symbols) {
+    override def toString: String = f"[$id%4d] ${symbols.from}%5d"
   }
 
   def checkNumberSymbolProximity(number: Digits, symbols: Text): Boolean = {
@@ -49,7 +51,7 @@ object main extends App {
 
   def extractSymbols(input: String) = {
     input.zipWithIndex
-      .filterNot(c => c._1.isDigit || c._1 == '.')
+      .filter(_._1 == '*')
       .foldLeft(Seq.empty[Symbols]) { case (acc, (d, i)) =>
         val prev = acc.lastOption
         prev match {
@@ -62,26 +64,35 @@ object main extends App {
       }
   }
 
-  def findEligibleDigits(digits: Seq[DigitsWithId], symbols: Seq[Text]): Seq[DigitsWithId] =
-    digits.filter{ di =>
+  def findEligiblePairs(digits: Seq[DigitsWithId], symbols: Seq[SymbolsWithId]): Set[(DigitsWithId, SymbolsWithId)] =
+    digits.flatMap { di =>
       symbols
-        .map(s => checkNumberSymbolProximity(di.digits, s))
-        .reduceOption(_ || _)
-        .getOrElse(false)
-    }
+        .map{ si =>
+          if(checkNumberSymbolProximity(di.digits, si.symbols))
+//            println(s"Found Pair: $di  $si")
+            Some((di, si))
+          else None
+        }
+        .collect{ case Some(x) => x}
+    }.toSet
 
 
-  def findMissingParts(input: Iterator[String]): Iterator[DigitsWithId] = {
-    input.zipWithIndex.sliding(2, 1).flatMap { case group =>
+  def getConnectedGears(input: Iterator[String]) = {
+    input.zipWithIndex.sliding(2, 1).toSeq.flatMap { case group =>
 //      println("------------------------------------------------")
 //      group.foreach(println)
       val dix = group.flatMap((l, i) => extractDigits(l).map(DigitsWithId(i, _)))
-      val six = group.map(_._1).flatMap(extractSymbols)
-      val res = findEligibleDigits(dix, six)
-//      println(res)
+      val six = group.flatMap((l, i) => extractSymbols(l).map(SymbolsWithId(i, _)))
+      val res = findEligiblePairs(dix, six)
       res
+    }.toSet.groupBy(_._2).map{ case (_, parts) =>
+      parts.toSeq match {
+        case x +: y +: Nil => x._1.digits.number * y._1.digits.number
+        case _ => 0
+      }
     }
   }
+
 
   def addMissingParts(parts: Set[DigitsWithId]): Long =
     parts.toSeq.map(_.digits.number.toLong).sum
@@ -106,12 +117,11 @@ object main extends App {
       |...$.*....
       |.664.598..
       |""".stripMargin.split("\n").map(_.trim).filterNot(_.isEmpty)
-  val sampleResult = findMissingParts(sampleInput.iterator).toSet
-  printResults(sampleResult)
-  println(addMissingParts(sampleResult))
+  val sampleResult = getConnectedGears(sampleInput.iterator).toSeq
+  println(sampleResult.sum)
+
 
   val input = Source.fromResource("aoc2023/day03/input1.txt").getLines()
-  val result = findMissingParts(input).toSet
-  printResults(result)
-  println(addMissingParts(result))
+  val result = getConnectedGears(input).toSeq
+  println(result.sum)
 }
