@@ -2,7 +2,7 @@ package aoc2023.day02
 
 import scala.io.Source
 
-object part1 extends App {
+object main extends App {
 
   case class GameTurn(red: Int, green: Int, blue: Int)
   object GameTurn {
