@@ -17,7 +17,7 @@ def part1(): Unit = {
   val testResult = result(testInput)
   println(testResult == 157)
 
-  val mainInput  = input("day03/input1.txt")
+  val mainInput  = input("day03/input.txt")
   val mainResult = result(mainInput)
   println(mainResult)
 

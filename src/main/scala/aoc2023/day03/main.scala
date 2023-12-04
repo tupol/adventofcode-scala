@@ -110,7 +110,7 @@ object main extends App {
   printResults(sampleResult)
   println(addMissingParts(sampleResult))
 
-  val input = Source.fromResource("aoc2023/day03/input1.txt").getLines()
+  val input = Source.fromResource("aoc2023/day03/input.txt").getLines()
   val result = findMissingParts(input).toSet
   printResults(result)
   println(addMissingParts(result))

@@ -49,11 +49,9 @@ object main extends App {
 
     val dx = (0 until input.size).map { i =>
       val c = input(i)
-      if (c.isDigit) {
-        //        println(s" isDigit")
+      if (c.isDigit) 
         Some(c.toString.toInt)
-      } else if (mightBeDigit.contains(c)) {
-        //        println(s" mightBeDigit")
+      else if (mightBeDigit.contains(c))
         val dit = digits.iterator
         var res1: Option[Int] = None
         while (dit.hasNext && res1.isEmpty) {
@@ -67,10 +65,8 @@ object main extends App {
           }
         }
         res1
-      } else {
-        //        println(s" notDigit")
+      else
         None
-      }
     }
     val inputDigits: Seq[Int] = dx.collect { case Some(x) => x }
     val a = inputDigits.headOption.getOrElse(0)
@@ -90,7 +86,7 @@ object main extends App {
       val c = input(i)
       if (c.isDigit) {
         collector.addOne(c.toString.toInt)
-        i = i + 1
+        i += 1
       } else if (mightBeDigit.contains(c)) {
         val dit = digits.iterator
         var stop = false
@@ -106,9 +102,9 @@ object main extends App {
             }
           }
         }
-        i = i + 1
+        i += 1
       } else
-        i = i + 1
+        i += 1
     }
 
     val a = collector.headOption.getOrElse(0)
@@ -131,7 +127,7 @@ object main extends App {
   val resultSample = sampleInput.map(correction2Optimized).reduce(_ + _)
   println(resultSample)
 
-  val input  = Source.fromResource("aoc2023/day01/input1.txt").getLines()
-  val result = input.map(correction2Optimized).reduce(_ + _)
+  val input  = Source.fromResource("aoc2023/day01/input.txt").getLines()
+  val result = input.map(correction2Optimized).sum
   println(result)
 }

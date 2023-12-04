@@ -65,13 +65,13 @@ object main extends App {
   val maxPerTurn = GameRules.MaxPerTurn(12, 13, 14)
 
   val sampleGames: Seq[Game] = sampleInput.map(Game.fromString(_))
-  val sampleResult = sampleGames.map(g => (g, maxPerTurn.checkGame(g))).filter(_._2).map(_._1.id).reduce(_ + _)
-  println(sampleResult)
+  val sampleResult = sampleGames.map(g => (g, maxPerTurn.checkGame(g))).filter(_._2).map(_._1.id).sum
+  println(s"Sample: $sampleResult")
 
-  def games = Source.fromResource("aoc2023/day02/input1.txt").getLines().map(Game.fromString(_))
-  val result = games.map(g => (g, maxPerTurn.checkGame(g))).filter(_._2).map(_._1.id).reduce(_ + _)
-  println(result)
+  def games = Source.fromResource("aoc2023/day02/input.txt").getLines().map(Game.fromString(_))
+  val result1 = games.map(g => (g, maxPerTurn.checkGame(g))).filter(_._2).map(_._1.id).sum
+  println(s"Part 1: $result1")
 
-  val result2 = games.map(GameRules.MaxPerGame.gamePower).reduce(_ + _)
-  println(result2)
+  val result2 = games.map(GameRules.MaxPerGame.gamePower).sum
+  println(s"Part 2: $result2")
 }

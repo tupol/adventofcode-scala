@@ -79,8 +79,6 @@ object main2 extends App {
 
   def getConnectedGears(input: Iterator[String]) = {
     input.zipWithIndex.sliding(2, 1).toSeq.flatMap { case group =>
-//      println("------------------------------------------------")
-//      group.foreach(println)
       val dix = group.flatMap((l, i) => extractDigits(l).map(DigitsWithId(i, _)))
       val six = group.flatMap((l, i) => extractSymbols(l).map(SymbolsWithId(i, _)))
       val res = findEligiblePairs(dix, six)
@@ -121,7 +119,7 @@ object main2 extends App {
   println(sampleResult.sum)
 
 
-  val input = Source.fromResource("aoc2023/day03/input1.txt").getLines()
+  val input = Source.fromResource("aoc2023/day03/input.txt").getLines()
   val result = getConnectedGears(input).toSeq
   println(result.sum)
 }
