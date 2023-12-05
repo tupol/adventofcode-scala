@@ -1,12 +1,12 @@
 package aoc2023.day04
 
-import aoc2023.day02.main.result1
-import aoc2023.day04.main.Card.*
+import aoc2023.day02.solution.result1
+import aoc2023.day04.solution.Card.*
 
 import scala.io.Source
 import scala.util.*
 
-object main extends App {
+object solution extends App {
 
   // Map[CardId, (CardsNumber, CardScore)]
   case class Cards(cards: Map[Int, (Int, Option[Int])] = Map()) {

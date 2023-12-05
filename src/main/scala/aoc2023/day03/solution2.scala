@@ -1,10 +1,10 @@
 package aoc2023.day03
 
-import aoc2023.day02.main.Game
+import aoc2023.day02.solution.Game
 
 import scala.io.Source
 
-object main2 extends App {
+object solution2 extends App {
 
   trait Text {
     val value: String

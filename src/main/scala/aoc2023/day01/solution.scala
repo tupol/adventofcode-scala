@@ -3,7 +3,7 @@ package aoc2023.day01
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
-object main extends App {
+object solution extends App {
 
   val digits = Seq("one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
     .zipWithIndex.map{ case (str, int) => (str, int + 1)}
