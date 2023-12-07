@@ -72,31 +72,15 @@ object solution extends App {
   }
 
 
-  sealed trait HandType {
-    def bumpHand: HandType
-  }
+  sealed trait HandType
   object HandType {
-    case object HighCard extends HandType {
-      def bumpHand = OnePair
-    }
-    case object OnePair extends HandType {
-      def bumpHand = ThreeOfAKind
-    }
-    case object TwoPair extends HandType {
-      def bumpHand = FullHouse
-    }
-    case object ThreeOfAKind extends HandType {
-      def bumpHand = FourOfAKind
-    }
-    case object FullHouse extends HandType {
-      def bumpHand = FourOfAKind
-    }
-    case object FourOfAKind extends HandType {
-      def bumpHand = FiveOfAKind
-    }
-    case object FiveOfAKind extends HandType {
-      def bumpHand = FiveOfAKind
-    }
+    case object HighCard extends HandType
+    case object OnePair extends HandType
+    case object TwoPair extends HandType
+    case object ThreeOfAKind extends HandType
+    case object FullHouse extends HandType
+    case object FourOfAKind extends HandType
+    case object FiveOfAKind extends HandType
   }
 
 
@@ -104,7 +88,7 @@ object solution extends App {
     val cards = Seq(c1, c2, c3, c4, c5)
     override def toString: String = cards.mkString("")
   }
-  object Hand{
+  object Hand {
     def fromString(input: String): Hand = {
       val parsedCards = input.trim.map(c => Card.fromString(c.toString)).collect{ case Some(c) => c }
       parsedCards match {
@@ -162,8 +146,7 @@ object solution extends App {
     }
     def winnings(playHands: Seq[PlayHand]): Long = {
       val rankedHands = playHands.sortBy(_.hand).zipWithIndex.map { case (ph, ix) => (ph, (ix + 1)) }
-//      rankedHands.map(rh => f"${rh._1.hand}  ${rh._1.bet}%4d$$  ${rh._2}%4d  |  ${prettyHand(rh._1.hand)} ${handType(rh._1.hand)}").foreach(println)
-//          rankedHands.map(rh => f"${rh._1.bet},${rh._2}").foreach(println)
+      //  rankedHands.map(rh => f"${rh._1.hand}  ${rh._1.bet}%4d$$  ${rh._2}%4d  |  ${prettyHand(rh._1.hand)} ${handType(rh._1.hand)}").foreach(println)
       val amount = rankedHands.map { case (ph, rank) => ph.bet * rank }.sum
       amount
     }
@@ -182,18 +165,27 @@ object solution extends App {
 
     def prettyHand(hand: Hand): String = hand.cards.sortBy(cardValue).reverse.mkString("")
 
+    def bumpHand(handType: HandType): HandType = handType match {
+      case HighCard => OnePair
+      case OnePair => ThreeOfAKind
+      case TwoPair => FullHouse
+      case ThreeOfAKind => FourOfAKind
+      case FullHouse => FourOfAKind
+      case FourOfAKind => FiveOfAKind
+      case FiveOfAKind => FiveOfAKind
+    }
+
     def handType(hand: Hand): HandType = {
       val initialRank = Part1Rules.handType(hand)
       if (initialRank == OnePair && hand.cards.filter(_ == CJ).size == 2)
         ThreeOfAKind
       else
-        hand.cards.filter(_ == CJ).foldLeft(initialRank)((r, _) => r.bumpHand)
+        hand.cards.filter(_ == CJ).foldLeft(initialRank)((r, _) => bumpHand(r))
     }
 
     def winnings(playHands: Seq[PlayHand]): Long = {
       val rankedHands = playHands.sortBy(_.hand).zipWithIndex.map { case (ph, ix) => (ph, (ix + 1)) }
-//      rankedHands.map(rh => f"${rh._1.hand}  ${rh._1.bet}%4d$$  ${rh._2}%4d  |  ${prettyHand(rh._1.hand)} ${handType(rh._1.hand)}").foreach(println)
-//      rankedHands.map(rh => f"${rh._1.bet},${rh._2}").foreach(println)
+      //  rankedHands.map(rh => f"${rh._1.hand}  ${rh._1.bet}%4d$$  ${rh._2}%4d  |  ${prettyHand(rh._1.hand)} ${handType(rh._1.hand)}").foreach(println)
       val amount = rankedHands.map { case (ph, rank) => ph.bet * rank }.sum
       amount
     }
@@ -209,11 +201,11 @@ object solution extends App {
       |QQQJA 483
       |""".stripMargin.split("\n").map(_.trim).filterNot(_.isEmpty)
 
+  def input = Source.fromResource("aoc2023/day07/input.txt").getLines()
 
   val sampleResult1 = Part1Rules.winnings(sampleCards.map(PlayHand.fromString))
-  println(s"Sample 1: $sampleResult1") // 288
+  println(s"Sample 1: $sampleResult1") // 6440
 
-  def input = Source.fromResource("aoc2023/day07/input.txt").getLines()
   val result1 = Part1Rules.winnings(input.map(PlayHand.fromString).toSeq)
   println(s"Part 1: $result1") // 252656917
 
