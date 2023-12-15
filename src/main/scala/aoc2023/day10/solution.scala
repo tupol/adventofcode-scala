@@ -3,8 +3,10 @@ package aoc2023.day10
 import aoc2023.day07.solution.Card.*
 import aoc2023.day07.solution.HandType.*
 import aoc2023.day07.solution.Part1Rules
+import aoc2023.day10.solution.LoopContents.isVertical
 import aoc2023.day10.solution.problem
 
+import scala.collection.immutable.Seq
 import scala.io.Source
 import scala.math
 import scala.util.*
@@ -100,71 +102,29 @@ object solution extends App {
   // TODO: PART 2 :)
 
   case class LoopContents(problem: Problem) {
-    val corners = Seq(NE, NW, SE, SW)
-    def canInlineHorizontally(a: Char, b: Char): Boolean = (a == NE && b == SW) || (a == SE && b == NW)
-    def canInlineVertically(a: Char, b: Char): Boolean = (a == NW && b == SE) || (a == SW && b == NE)
 
-    lazy val loop: Seq[Pos] = LoopFinder(problem).toSeq.map(_.pos)
+    import LoopContents._
+
+    lazy val loop: Seq[(Char, Pos)] = {
+      val originalLoop = LoopFinder(problem).toSeq.map(x => (x.item, x.pos))
+      val loopStart = (LoopContents.findLoopStart(originalLoop), originalLoop.last._2)
+      originalLoop.dropRight(1) :+ loopStart
+    }
     def item(pos: Pos): Char = problem.matrix(pos.y)(pos.x)
-    def isOnLoop(pos: Pos) = loop.filter(_ == pos).size > 0
-    def isCorner(pos: Pos) = corners.contains(item(pos))
+    def itemOnLoop(pos: Pos): Option[Char] = loop.filter(_._2 == pos).headOption.map(_._1)
 
-    def isVertical(c: Char): Boolean = c == NS
-    def isVertical(pos: Pos): Boolean = isVertical(item(pos))
-
-    def isHorizontal(c: Char): Boolean = c == EW
-    def isHorizontal(pos: Pos): Boolean = isHorizontal(item(pos))
-    def loopItemsOnRow(y: Int) = {
-      println(s"loopItemsOnRow = ${
-        loop
-          .filter(_.y == y)
-          .filterNot(isHorizontal)
-          .map(p => (item(p), p))
-      }")
-      loop
-        .filter(_.y == y)
-        .filterNot(isHorizontal)
-        .map(p => (item(p), p))
-        .foldLeft(Seq[(Char, Pos)]())((acc, p) =>
-          acc match {
-            case x +: xs if canInlineVertically(x._1, p._1) => (Vertical, p._2) +: xs
-            case Nil => acc
-          }
-        )
-        .filter(x => isVertical(x._1))
-    }
-    def loopItemsOnCol(x: Int) = {
-//      println(s"loopItemsOnCol = ${
-//        loop.filter(_.x == x)
-//          .filterNot(isVertical)
-//          .map(p => (item(p), p))}")
-      loop.filter(_.x == x)
-        .filterNot(isVertical)
-        .map(p => (item(p), p))
-        .foldLeft(Seq[(Char, Pos)]())((acc, p) =>
-          acc match {
-            case Nil => acc
-            case x +: xs if canInlineHorizontally(x._1, p._1) => (Horizontal, p._2) +: xs
-            case _ => p +: acc
-
-          }
-        ).filter(x => isHorizontal(x._1))
-    }
+    def loopItemsOnRow(y: Int) = LoopContents.loopItemsOnRow(loop, y)
+    def loopItemsOnCol(x: Int) = LoopContents.loopItemsOnCol(loop, x)
     def isInLoop(pos: Pos) = {
-      val res = !isOnLoop(pos) &&
+      !itemOnLoop(pos).isDefined &&
         ( math.floorMod(loopItemsOnRow(pos.y).filter(_._2.x < pos.x).size, 2) == 1 ||
           math.floorMod(loopItemsOnCol(pos.x).filter(_._2.y < pos.y).size, 2) == 1 )
-//      println(s"# $pos  $res ----------------------------------------")
-//      println(s"  isOnLoop(pos) = ${isOnLoop(pos)}")
-//      println(s"  loopItemsOnRow(pos.y).filter(_.x < pos.x).size = ${loopItemsOnRow(pos.y).filter(_._2.x < pos.x)}")
-//      println(s"  loopItemsOnCol(pos.x).filter(_.y < pos.y).size = ${loopItemsOnCol(pos.x).filter(_._2.y < pos.y)}")
-      res
     }
     def printLoop: Unit =
       problem.matrix.zipWithIndex.map{ case (line, y) =>
         line.zipWithIndex.map { case (c, x) =>
           val pos = Pos(x = x, y = y)
-          if(isOnLoop(pos)) c
+          if(itemOnLoop(pos).isDefined) itemOnLoop(pos).get
           else if(isInLoop(pos)) '*'
           else ' '
         }.mkString("")
@@ -178,6 +138,68 @@ object solution extends App {
       pos = Pos(x = x, y = y)
       if(isInLoop(pos))
     } yield pos
+  }
+
+  object LoopContents {
+    val corners = Seq(NE, NW, SE, SW)
+    def canInline(a: Char, b: Char): Boolean =
+      (a == NW && b == SE) || (a == SW && b == NE) || (a == NE && b == SW) || (a == SE && b == NW)
+    def isVertical(c: Char): Boolean = c == NS
+    def isHorizontal(c: Char): Boolean = c == EW
+    def isUTurn(a: Char, b: Char): Boolean =
+      (a, b) match {
+        case (NE, NW) => true
+        case (SE, SW) => true
+        case (SW, NW) => true
+        case (SE, NE) => true
+        case (_, _) => false
+      }
+
+    def findLoopStart(loop: Seq[(Char, Pos)]): Char = {
+      val s = loop.last._2
+      val p = loop.dropRight(1).last._2
+      val n = loop.head._2
+      val (v, h) = if (p.x == s.x) (p, n) else (n, p)
+      if     (p.x == n.x)              NS
+      else if(p.y == n.y)              EW
+      else if(v.x < h.x && v.y > h.y)  SE
+      else if(v.x > h.x && v.y > h.y)  SW
+      else if(v.x > h.x && v.y < h.y)  NW
+      else if(v.x < h.x && v.y < h.y)  NE
+      else OO
+    }
+
+    def loopItemsOnRow(loop: Seq[(Char, Pos)], y: Int) = {
+      loop
+        .filter(_._2.y == y)
+        .sortBy(_._2.x)
+        .filterNot(x => isHorizontal(x._1))
+        .foldLeft(Seq[(Char, Pos)]())((acc, p) =>
+          acc match {
+            case x +: xs if isUTurn(x._1, p._1) => xs
+            case x +: xs if canInline(x._1, p._1) => (Vertical, p._2) +: xs
+            case _ => p +: acc
+            case Nil => acc
+          }
+        )
+        .filter(x => isVertical(x._1))
+        .reverse
+    }
+
+    def loopItemsOnCol(loop: Seq[(Char, Pos)], x: Int) = {
+      loop.filter(_._2.x == x)
+        .sortBy(_._2.y)
+        .filterNot(x => isVertical(x._1))
+        .foldLeft(Seq[(Char, Pos)]())((acc, p) =>
+          acc match {
+            case x +: xs if isUTurn(x._1, p._1) => xs
+            case x +: xs if canInline(x._1, p._1) => (Horizontal, p._2) +: xs
+            case _ => p +: acc
+            case Nil => acc
+
+          }
+        ).filter(x => isHorizontal(x._1))
+    }
   }
 
   val sample21 =
@@ -198,10 +220,7 @@ object solution extends App {
   val resultSample21 = loopContents21.contents()
   println(s"Sample 21: ${resultSample21.size}")
   println(s"Sample 21: ${resultSample21}")
-  loopContents21.problem.matrix.zipWithIndex.foreach { case (line, y) =>
-    val ior = loopContents21.loopItemsOnRow(y)
-    println(f"$y%2d  |  $line  |  $ior")
-  }
+
 
   val sample22 =
     """
@@ -216,11 +235,10 @@ object solution extends App {
       |..........
       |""".stripMargin.split("\n").map(_.trim.toIndexedSeq).filterNot(_.isEmpty).toIndexedSeq
 
-//  val problem22 = Problem(sample22)
-//  val resultSample22 = LoopContents(problem22).contents()
-//  println(s"Sample 22: ${resultSample22.size}")
-//  println(s"Sample 22: ${resultSample22}")
-
+  val problem22 = Problem(sample22)
+  val resultSample22 = LoopContents(problem22).contents()
+  println(s"Sample 22: ${resultSample22.size}")
+  println(s"Sample 22: ${resultSample22}")
 
   val sample23 =
     """
@@ -236,27 +254,16 @@ object solution extends App {
       |....L---J.LJ.LJLJ...
       |""".stripMargin.split("\n").map(_.trim.toIndexedSeq).filterNot(_.isEmpty).toIndexedSeq
 
-  //    01234567890123456789
-  // 0  OF----7F7F7F7F-7OOOO
-  // 1  O|F--7||||||||FJOOOO
-  // 3  O||OFJ||||||||L7OOOO
-  // 4  FJL7L7LJLJ||LJIL-7OO
-  // 5  L--JOL7IIILJS7F-7L7O
-  // 6  OOOOF-JIIF7FJ|L7L7L7
-  // 7  OOOOL7IF7||L7|IL7L7|
-  // 8  OOOOO|FJLJ|FJ|F7|OLJ
-  // 9  OOOOFJL-7O||O||||OOO
-  //10  OOOOL---JOLJOLJLJOOO
-  //    01234567890123456789
-  // (3, 14), (4, 7), (4, 8), (4, 9), (5, 7), (5, 8), (6, 6), (6, 14)
+  val problem23 = Problem(sample23)
+  val solver23 = LoopContents(problem23)
+  val resultSample23 = solver23.contents()
+  println(s"Sample 23: ${resultSample23.size}")
 
-//  val problem23 = Problem(sample23)
-//  val solver23 = LoopContents(problem23)
-////  val resultSample23 = solver23.contents()
-////  println(s"Sample 23: ${resultSample23}")
-////  solver23.printLoop
-//  println("===================================================================================================================")
-//  val expected = Seq(Pos(3, 14), Pos(4, 7), Pos(4, 8), Pos(4, 9), Pos(5, 7), Pos(5, 8), Pos(6, 6), Pos(6, 14))
-//  expected.foreach(x => println(s"$x ${solver23.isInLoop(x)}"))
+  val problem2 = Problem(input)
+  val solver2 = LoopContents(problem2)
+  val result2 = solver2.contents()
+  println(s"Part 2: ${result2.size}") // 6725
+
+
 
 }
