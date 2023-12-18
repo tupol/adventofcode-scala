@@ -124,7 +124,25 @@ object solution extends App {
   }
 
   def cycles(board: Board, count: Int): Board =
-    (0 until count).foldLeft(board)((acc, _) => cycle(acc))
+    (1 until count).foldLeft(board){(acc, _) =>
+      cycle(acc)
+    }
 
-  println(loadOnNorthBeams(cycles(sample, 1000000000)))
+  def loadCycles(board: Board, count: Int): Seq[(Int, Int, Board)] =
+    (1 to count).foldLeft(Seq[(Int, Int, Board)]()) { (acc, i) =>
+      acc match {
+        case Nil =>
+          val nb = cycle(board)
+          (i, loadOnNorthBeams(nb), nb) +: acc
+        case h +: _ =>
+          val nb = cycle(h._3)
+          (i, loadOnNorthBeams(nb), nb) +: acc
+      }
+    }
+
+  // cycles(sample, 1000000000) should be 64
+
+//  loadCycles(sample, 100000).filter(x => math.floorMod(x._1, 1000) == 0).map(x => (x._1, x._2)).foreach(println)
+  loadCycles(sample, 100).map(x => (x._1, x._2)).foreach(println)
+//  println(loadOnNorthBeams(cycles(sample, 1000000000)))
 }
