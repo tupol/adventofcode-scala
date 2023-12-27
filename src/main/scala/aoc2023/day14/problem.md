@@ -1,4 +1,4 @@
-# Day 14: Parabolic Reflector Dish ---
+# Day 14: Parabolic Reflector Dish
 
 You reach the place where all of the mirrors were pointing: a massive parabolic reflector dish attached to the side of another large mountain.
 
@@ -57,7 +57,7 @@ Your puzzle answer was 112048.
 
 The first half of this puzzle is complete! It provides one gold star: *
 
---- Part Two ---
+## Part Two
 The parabolic reflector dish deforms, but not in a way that focuses the beam. To do that, you'll need to move the rocks to the edges of the platform. Fortunately, a button on the side of the control panel labeled "spin cycle" attempts to do just that!
 
 Each cycle tilts the platform four times so that the rounded rocks roll north, then west, then south, then east. After each tilt, the rounded rocks roll as far as they can before the platform tilts in the next direction. After one cycle, the platform will have finished rolling the rounded rocks in those four directions in that order.
